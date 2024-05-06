@@ -3,6 +3,8 @@
 ## Overview
 This project is an implementation of the classic Snake Game with a twist - it's played by an AI! The AI uses a simple greedy algorithm to decide the direction of the snake based on the position of the food and the snake itself.
 
+Now available on [snake.thi.digital](snake.thi.digital)!
+
 ## Features
 - Classic Snake Game mechanics.
 - AI-controlled snake.
@@ -18,6 +20,7 @@ Just open the `index.html` file in your browser and watch the AI play the game!
 
 ## Future Improvements
 - Implement a more advanced AI using pathfinding algorithms like A* or Dijkstra's algorithm.
+  - In progress ^ 
 - Add a feature to switch between AI and human player.
 
 ## Contributing
