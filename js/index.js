@@ -198,53 +198,55 @@ function updateHighScore() {
   highScoreText.style.display = 'block';
 }
 
-function aStar(start, goal) {
-  let openList = [start];
-  let closedList = [];
+function aStar(startNode, goalNode) {
+  let openNodes = [startNode];
+  let closedNodes = [];
 
-  while (openList.length > 0) {
-    let currentNode = openList.sort((a, b) => a.f - b.f)[0];
+  while (openNodes.length > 0) {
+    let currentNode = openNodes.sort((a, b) => a.totalCost - b.totalCost)[0];
 
-    if (currentNode.x === goal.x && currentNode.y === goal.y) {
+    if (currentNode.x === goalNode.x && currentNode.y === goalNode.y) {
       let path = [];
-      while (currentNode !== start) {
+      while (currentNode !== startNode) {
         path.unshift(currentNode);
         currentNode = currentNode.parent;
       }
       return path;
     }
 
-    openList = openList.filter(node => node !== currentNode);
-    closedList.push(currentNode);
+    openNodes = openNodes.filter(node => node !== currentNode);
+    closedNodes.push(currentNode);
 
     let neighbors = getNeighbors(currentNode);
 
     for (let neighbor of neighbors) {
-      if (closedList.some(closedNode => closedNode.x === neighbor.x && closedNode.y === neighbor.y)) continue;
+      if (closedNodes.some(closedNode => closedNode.x === neighbor.x && closedNode.y === neighbor.y)) continue;
 
-      let tempG = currentNode.g + 1;
+      let tentativeCost = currentNode.costFromStart + 1;
 
-      if (openList.some(openNode => openNode.x === neighbor.x && openNode.y === neighbor.y)) {
-        if (tempG < neighbor.g) {
-          neighbor.g = tempG;
+      if (openNodes.some(openNode => openNode.x === neighbor.x && openNode.y === neighbor.y)) {
+        let existingNode = openNodes.find(openNode => openNode.x === neighbor.x && openNode.y === neighbor.y);
+        if (tentativeCost < existingNode.costFromStart) {
+          existingNode.costFromStart = tentativeCost;
+          existingNode.totalCost = existingNode.costFromStart + existingNode.heuristicCost;
+          existingNode.parent = currentNode;
         }
       } else {
-        neighbor.g = tempG;
-        openList.push(neighbor);
+        neighbor.costFromStart = tentativeCost;
+        neighbor.heuristicCost = calculateHeuristicCost(neighbor, goalNode);
+        neighbor.totalCost = neighbor.costFromStart + neighbor.heuristicCost;
+        neighbor.parent = currentNode;
+        openNodes.push(neighbor);
       }
-
-      neighbor.h = heuristic(neighbor, goal);
-      neighbor.f = neighbor.g + neighbor.h;
-      neighbor.parent = currentNode;
     }
   }
 
   return [];
 }
 
-function heuristic(node, goal) {
+function calculateHeuristicCost(node, goalNode) {
   // Calculate Manhattan distance from current node to goal
-  let distanceToGoal = Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
+  let distanceToGoal = Math.abs(node.x - goalNode.x) + Math.abs(node.y - goalNode.y);
 
   // Calculate the distance to the tail of the snake
   let minDistanceToTail = Infinity;
@@ -264,27 +266,27 @@ function getNeighbors(node) {
   
     // Check the cell on the right
     if (node.x < gridSize && !isSnake({ x: node.x + 1, y: node.y })) {
-      neighbors.push({ x: node.x + 1, y: node.y });
+      neighbors.push({ x: node.x + 1, y: node.y, costFromStart: Infinity, heuristicCost: 0 });
     }
   
     // Check the cell on the left
     if (node.x > 1 && !isSnake({ x: node.x - 1, y: node.y })) {
-      neighbors.push({ x: node.x - 1, y: node.y });
+      neighbors.push({ x: node.x - 1, y: node.y, costFromStart: Infinity, heuristicCost: 0 });
     }
   
     // Check the cell above
     if (node.y > 1 && !isSnake({ x: node.x, y: node.y - 1 })) {
-      neighbors.push({ x: node.x, y: node.y - 1 });
+      neighbors.push({ x: node.x, y: node.y - 1, costFromStart: Infinity, heuristicCost: 0 });
     }
   
     // Check the cell below
     if (node.y < gridSize && !isSnake({ x: node.x, y: node.y + 1 })) {
-      neighbors.push({ x: node.x, y: node.y + 1 });
+      neighbors.push({ x: node.x, y: node.y + 1, costFromStart: Infinity, heuristicCost: 0 });
     }
-  
+    
     return neighbors;
-  }
-  
-  function isSnake(position) {
+}
+
+function isSnake(position) {
     return snake.some(segment => segment.x === position.x && segment.y === position.y);
-  }
+}
