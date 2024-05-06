@@ -61,52 +61,52 @@ function generateFood() {
 
 // Adds AI movement to the game
 function aiDirection() {
-    const head = { ...snake[0] }; // Get the current head of the snake
-    if (head.x < food.x) {
-      return 'right';
-    } else if (head.x > food.x) {
-      return 'left';
-    } else if (head.y < food.y) {
-      return 'down';
-    } else if (head.y > food.y) {
-      return 'up';
-    }
-  }
+  const path = aStar(snake[0], food); // Find the path from the snake to the food
+  if (path.length === 0) return 'right'; // Default direction
+
+  const nextStep = path[0]; // The next step is the first node in the path
+
+  // Convert the next step to a direction
+  if (nextStep.x > snake[0].x) return 'right';
+  if (nextStep.x < snake[0].x) return 'left';
+  if (nextStep.y > snake[0].y) return 'down';
+  if (nextStep.y < snake[0].y) return 'up';
+}
 
 // Moving the snake
 function move() {
-    direction = aiDirection(); // Use the AI function to decide the direction
-    const head = { ...snake[0] };
-    switch (direction) {
-      case 'up':
-        head.y--;
-        break;
-      case 'down':
-        head.y++;
-        break;
-      case 'left':
-        head.x--;
-        break;
-      case 'right':
-        head.x++;
-        break;
-    }
-  
-    snake.unshift(head);
-  
-    if (head.x === food.x && head.y === food.y) {
-      food = generateFood();
-      increaseSpeed();
-      clearInterval(gameInterval); // Clear past interval
-      gameInterval = setInterval(() => {
-        move();
-        checkCollision();
-        draw();
-      }, gameSpeedDelay);
-    } else {
-      snake.pop();
-    }
+  direction = aiDirection(); // Use the AI function to decide the direction
+  const head = { ...snake[0] };
+  switch (direction) {
+    case 'up':
+      head.y--;
+      break;
+    case 'down':
+      head.y++;
+      break;
+    case 'left':
+      head.x--;
+      break;
+    case 'right':
+      head.x++;
+      break;
   }
+
+  snake.unshift(head);
+
+  if (head.x === food.x && head.y === food.y) {
+    food = generateFood();
+    increaseSpeed();
+    clearInterval(gameInterval); // Clear past interval
+    gameInterval = setInterval(() => {
+      move();
+      checkCollision();
+      draw();
+    }, gameSpeedDelay);
+  } else {
+    snake.pop();
+  }
+}
 
 // Start game
 function startGame() {
@@ -120,30 +120,6 @@ function startGame() {
   }, gameSpeedDelay);
 }
 
-function aiDirection() {
-    const start = { x: snake[0].x, y: snake[0].y }; // Convert the snake's head to a node
-    const goal = { x: food.x, y: food.y }; // Convert the food to a node
-  
-    const path = aStar(start, goal); // Find the path from the start to the goal
-  
-    if (path.length > 0) {
-      const nextStep = path[0]; // The next step is the first node in the path
-  
-      // Convert the next step to a direction
-      if (nextStep.x > start.x) {
-        return 'right';
-      } else if (nextStep.x < start.x) {
-        return 'left';
-      } else if (nextStep.y > start.y) {
-        return 'down';
-      } else if (nextStep.y < start.y) {
-        return 'up';
-      }
-    }
-  
-    return 'right'; // Default direction
-  }  
-
 // Keypress event listener
 function handleKeyPress(event) {
   if (
@@ -151,23 +127,7 @@ function handleKeyPress(event) {
     (!gameStarted && event.key === ' ')
   ) {
     startGame();
-  } /*else {
-    
-    switch (event.key) {
-      case 'ArrowUp':
-        direction = 'up';
-        break;
-      case 'ArrowDown':
-        direction = 'down';
-        break;
-      case 'ArrowLeft':
-        direction = 'left';
-        break;
-      case 'ArrowRight':
-        direction = 'right';
-        break;
-    }
-  }*/
+  }
 }
 
 document.addEventListener('keydown', handleKeyPress);
@@ -229,34 +189,80 @@ function updateHighScore() {
   highScoreText.style.display = 'block';
 }
 
+function aStar(start, goal) {
+  let openList = [start];
+  let closedList = [];
 
+  while (openList.length > 0) {
+    let currentNode = openList.sort((a, b) => a.f - b.f)[0];
+
+    if (currentNode.x === goal.x && currentNode.y === goal.y) {
+      let path = [];
+      while (currentNode !== start) {
+        path.unshift(currentNode);
+        currentNode = currentNode.parent;
+      }
+      return path;
+    }
+
+    openList = openList.filter(node => node !== currentNode);
+    closedList.push(currentNode);
+
+    let neighbors = getNeighbors(currentNode);
+
+    for (let neighbor of neighbors) {
+      if (closedList.some(closedNode => closedNode.x === neighbor.x && closedNode.y === neighbor.y)) continue;
+
+      let tempG = currentNode.g + 1;
+
+      if (openList.some(openNode => openNode.x === neighbor.x && openNode.y === neighbor.y)) {
+        if (tempG < neighbor.g) {
+          neighbor.g = tempG;
+        }
+      } else {
+        neighbor.g = tempG;
+        openList.push(neighbor);
+      }
+
+      neighbor.h = heuristic(neighbor, goal);
+      neighbor.f = neighbor.g + neighbor.h;
+      neighbor.parent = currentNode;
+    }
+  }
+
+  return [];
+}
+
+function heuristic(node, goal) {
+  return Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
+}
 
 function getNeighbors(node) {
     let neighbors = [];
   
     // Check the cell on the right
-    if (node.x < gridSize) {
+    if (node.x < gridSize && !isSnake({ x: node.x + 1, y: node.y })) {
       neighbors.push({ x: node.x + 1, y: node.y });
     }
   
     // Check the cell on the left
-    if (node.x > 1) {
+    if (node.x > 1 && !isSnake({ x: node.x - 1, y: node.y })) {
       neighbors.push({ x: node.x - 1, y: node.y });
     }
   
     // Check the cell above
-    if (node.y > 1) {
+    if (node.y > 1 && !isSnake({ x: node.x, y: node.y - 1 })) {
       neighbors.push({ x: node.x, y: node.y - 1 });
     }
   
     // Check the cell below
-    if (node.y < gridSize) {
+    if (node.y < gridSize && !isSnake({ x: node.x, y: node.y + 1 })) {
       neighbors.push({ x: node.x, y: node.y + 1 });
     }
-  
-    // Filter out the neighbors that are part of the snake's body
-    neighbors = neighbors.filter(neighbor => !snake.some(segment => segment.x === neighbor.x && segment.y === neighbor.y));
   
     return neighbors;
   }
   
+  function isSnake(position) {
+    return snake.some(segment => segment.x === position.x && segment.y === position.y);
+  }  
