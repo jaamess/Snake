@@ -237,7 +237,20 @@ function aStar(start, goal) {
 }
 
 function heuristic(node, goal) {
-  return Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
+  // Calculate Manhattan distance from current node to goal
+  let distanceToGoal = Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
+
+  // Calculate the distance to the tail of the snake
+  let minDistanceToTail = Infinity;
+  snake.forEach(segment => {
+    const distance = Math.abs(segment.x - node.x) + Math.abs(segment.y - node.y);
+    if (distance < minDistanceToTail) {
+      minDistanceToTail = distance;
+    }
+  });
+
+  // Heuristic value is a combination of distance to goal and distance to tail
+  return distanceToGoal + minDistanceToTail;
 }
 
 function getNeighbors(node) {
