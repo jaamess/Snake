@@ -59,6 +59,20 @@ function generateFood() {
   return { x, y };
 }
 
+// Adds AI movement to the game
+function aiDirection() {
+    const head = { ...snake[0] }; // Get the current head of the snake
+    if (head.x < food.x) {
+      return 'right';
+    } else if (head.x > food.x) {
+      return 'left';
+    } else if (head.y < food.y) {
+      return 'down';
+    } else if (head.y > food.y) {
+      return 'up';
+    }
+  }
+
 // Moving the snake
 function move() {
     direction = aiDirection(); // Use the AI function to decide the direction
@@ -126,7 +140,8 @@ function handleKeyPress(event) {
     (!gameStarted && event.key === ' ')
   ) {
     startGame();
-  } else {
+  } /*else {
+    
     switch (event.key) {
       case 'ArrowUp':
         direction = 'up';
@@ -141,7 +156,7 @@ function handleKeyPress(event) {
         direction = 'right';
         break;
     }
-  }
+  }*/
 }
 
 document.addEventListener('keydown', handleKeyPress);
