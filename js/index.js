@@ -83,15 +83,19 @@ function move() {
   switch (direction) {
     case 'up':
       head.y--;
+      console.log('Move up')
       break;
     case 'down':
       head.y++;
+      console.log('Move down')
       break;
     case 'left':
       head.x--;
+      console.log('Move left')
       break;
     case 'right':
       head.x++;
+      console.log('Move right')
       break;
   }
 
@@ -156,6 +160,7 @@ function checkCollision() {
 
   for (let i = 1; i < snake.length; i++) {
     if (head.x === snake[i].x && head.y === snake[i].y) {
+      console.log('Ending game...')
       resetGame();
     }
   }
