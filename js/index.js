@@ -54,10 +54,13 @@ function drawFood() {
 }
 
 function generateFood() {
-  const x = Math.floor(Math.random() * gridSize) + 1;
-  const y = Math.floor(Math.random() * gridSize) + 1;
-  return { x, y };
-}
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * gridSize) + 1;
+      y = Math.floor(Math.random() * gridSize) + 1;
+    } while (isSnake({ x, y }));
+    return { x, y };
+  }  
 
 // Adds AI movement to the game
 function aiDirection() {
