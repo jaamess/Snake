@@ -17,28 +17,19 @@ let gameStarted = false;
 
 // Draw game map, snake, food
 function draw() {
-  // Use document fragment to improve performance
-  const fragment = document.createDocumentFragment();
+  board.innerHTML = '';
+  drawSnake();
+  drawFood();
+  updateScore();
+}
 
-  // Draw snake
+// Generate snake
+function drawSnake() {
   snake.forEach((segment) => {
     const snakeElement = createGameElement('div', 'snake');
     setPosition(snakeElement, segment);
-    fragment.appendChild(snakeElement);
+    board.appendChild(snakeElement);
   });
-
-  // Draw food
-  if (gameStarted) {
-    const foodElement = createGameElement('div', 'food');
-    setPosition(foodElement, food);
-    fragment.appendChild(foodElement);
-  }
-
-  // Append all elements at once
-  board.innerHTML = '';
-  board.appendChild(fragment);
-
-  updateScore();
 }
 
 // Create a snake or food cube/div
@@ -54,27 +45,84 @@ function setPosition(element, position) {
   element.style.gridRow = position.y;
 }
 
+function drawFood() {
+  if (gameStarted) {
+    const foodElement = createGameElement('div', 'food');
+    setPosition(foodElement, food);
+    board.appendChild(foodElement);
+  }
+}
+
 function generateFood() {
-    let x, y;
-    do {
-      x = Math.floor(Math.random() * gridSize) + 1;
-      y = Math.floor(Math.random() * gridSize) + 1;
-    } while (isSnake({ x, y }));
-    return { x, y };
-  }  
+  let x, y;
+  do {
+    x = Math.floor(Math.random() * gridSize) + 1;
+    y = Math.floor(Math.random() * gridSize) + 1;
+  } while (isSnake({ x, y }));
+  return { x, y };
+}
 
 // Adds AI movement to the game
 function aiDirection() {
-  const path = aStar(snake[0], food); // Find the path from the snake to the food
+  const path = dijkstra(snake[0], food); // Find the path from the snake to the food
   if (path.length === 0) return 'right'; // Default direction
 
-  const nextStep = path[0]; // The next step is the first node in the path
+  const nextStep = path[1]; // The next step is the second node in the path (first node is the snake's head)
 
   // Convert the next step to a direction
   if (nextStep.x > snake[0].x) return 'right';
   if (nextStep.x < snake[0].x) return 'left';
   if (nextStep.y > snake[0].y) return 'down';
   if (nextStep.y < snake[0].y) return 'up';
+}
+
+// Dijkstra's algorithm for pathfinding
+function dijkstra(start, goal) {
+  const distances = {}; // Stores the distances from start to each node
+  const previous = {}; // Stores the previous node in the shortest path
+  const queue = new PriorityQueue(); // Priority queue for nodes to visit
+
+  // Initialize distances and queue
+  Object.values(snake).forEach(node => {
+    distances[node] = Infinity;
+    previous[node] = null;
+    queue.enqueue(node, Infinity);
+  });
+
+  distances[start] = 0;
+  queue.changePriority(start, 0);
+
+  while (!queue.isEmpty()) {
+    const current = queue.dequeue();
+
+    if (current === goal) {
+      const path = [];
+      let temp = goal;
+      while (temp !== null) {
+        path.unshift(temp);
+        temp = previous[temp];
+      }
+      return path;
+    }
+
+    const neighbors = getNeighbors(current);
+    neighbors.forEach(neighbor => {
+      const alt = distances[current] + 1; // Assuming uniform cost for each move
+      if (alt < distances[neighbor]) {
+        distances[neighbor] = alt;
+        previous[neighbor] = current;
+        queue.changePriority(neighbor, alt);
+      }
+    });
+  }
+
+  return [];
+}
+
+// Heuristic function for Dijkstra's algorithm (not used, but can be enhanced for other purposes)
+function heuristic(node, goal) {
+  // In Dijkstra's algorithm, heuristic is not used, but you can enhance it for other purposes
+  return 0; // Default heuristic value
 }
 
 // Moving the snake
@@ -84,20 +132,23 @@ function move() {
   switch (direction) {
     case 'up':
       head.y--;
-      console.log('Move up')
       break;
     case 'down':
       head.y++;
-      console.log('Move down')
       break;
     case 'left':
       head.x--;
-      console.log('Move left')
       break;
     case 'right':
       head.x++;
-      console.log('Move right')
       break;
+  }
+
+  // Check for collision with walls or snake's body
+  if (isCollision(head)) {
+    console.log('Collision detected.\nEnding game...');
+    resetGame();
+    return; // Exit the function to prevent further execution
   }
 
   snake.unshift(head);
@@ -108,12 +159,30 @@ function move() {
     clearInterval(gameInterval); // Clear past interval
     gameInterval = setInterval(() => {
       move();
-      checkCollision();
       draw();
     }, gameSpeedDelay);
   } else {
     snake.pop();
   }
+}
+
+function isCollision(position) {
+  // Check for collisions with the walls
+  if (
+    position.x < 1 || position.x > gridSize ||
+    position.y < 1 || position.y > gridSize
+  ) {
+    return true;
+  }
+
+  // Check for collisions with the snake's body
+  for (let i = 1; i < snake.length; i++) {
+    if (position.x === snake[i].x && position.y === snake[i].y) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Start game
@@ -156,12 +225,13 @@ function checkCollision() {
   const head = snake[0];
 
   if (head.x < 1 || head.x > gridSize || head.y < 1 || head.y > gridSize) {
+    console.log('Collision with wall detected.\nEnding game...');
     resetGame();
   }
 
   for (let i = 1; i < snake.length; i++) {
     if (head.x === snake[i].x && head.y === snake[i].y) {
-      console.log('Collision detected.\nEnding game...')
+      console.log('Collision with self detected.\nEnding game...');
       resetGame();
     }
   }
@@ -198,93 +268,32 @@ function updateHighScore() {
   highScoreText.style.display = 'block';
 }
 
-function aStar(start, goal) {
-  let openList = [start];
-  let closedList = [];
-
-  while (openList.length > 0) {
-    let currentNode = openList.sort((a, b) => a.f - b.f)[0];
-
-    if (currentNode.x === goal.x && currentNode.y === goal.y) {
-      let path = [];
-      while (currentNode !== start) {
-        path.unshift(currentNode);
-        currentNode = currentNode.parent;
-      }
-      return path;
-    }
-
-    openList = openList.filter(node => node !== currentNode);
-    closedList.push(currentNode);
-
-    let neighbors = getNeighbors(currentNode);
-
-    for (let neighbor of neighbors) {
-      if (closedList.some(closedNode => closedNode.x === neighbor.x && closedNode.y === neighbor.y)) continue;
-
-      let tempG = currentNode.g + 1;
-
-      if (openList.some(openNode => openNode.x === neighbor.x && openNode.y === neighbor.y)) {
-        if (tempG < neighbor.g) {
-          neighbor.g = tempG;
-        }
-      } else {
-        neighbor.g = tempG;
-        openList.push(neighbor);
-      }
-
-      neighbor.h = heuristic(neighbor, goal);
-      neighbor.f = neighbor.g + neighbor.h;
-      neighbor.parent = currentNode;
-    }
-  }
-
-  return [];
-}
-
-function heuristic(node, goal) {
-  // Calculate Manhattan distance from current node to goal
-  let distanceToGoal = Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
-
-  // Calculate the distance to the tail of the snake
-  let minDistanceToTail = Infinity;
-  snake.forEach(segment => {
-    const distance = Math.abs(segment.x - node.x) + Math.abs(segment.y - node.y);
-    if (distance < minDistanceToTail) {
-      minDistanceToTail = distance;
-    }
-  });
-
-  // Heuristic value is a combination of distance to goal and distance to tail
-  return distanceToGoal + minDistanceToTail;
-}
-
 function getNeighbors(node) {
-    let neighbors = [];
-  
-    // Check the cell on the right
-    if (node.x < gridSize && !isSnake({ x: node.x + 1, y: node.y })) {
-      neighbors.push({ x: node.x + 1, y: node.y });
-    }
-  
-    // Check the cell on the left
-    if (node.x > 1 && !isSnake({ x: node.x - 1, y: node.y })) {
-      neighbors.push({ x: node.x - 1, y: node.y });
-    }
-  
-    // Check the cell above
-    if (node.y > 1 && !isSnake({ x: node.x, y: node.y - 1 })) {
-      neighbors.push({ x: node.x, y: node.y - 1 });
-    }
-  
-    // Check the cell below
-    if (node.y < gridSize && !isSnake({ x: node.x, y: node.y + 1 })) {
-      neighbors.push({ x: node.x, y: node.y + 1 });
-    }
-  
-    return neighbors;
+  let neighbors = [];
+
+  // Check the cell on the right
+  if (node.x < gridSize && !isSnake({ x: node.x + 1, y: node.y })) {
+    neighbors.push({ x: node.x + 1, y: node.y });
   }
-  
-  function isSnake(position) {
-    return snake.some(segment => segment.x === position.x && segment.y === position.y);
+
+  // Check the cell on the left
+  if (node.x > 1 && !isSnake({ x: node.x - 1, y: node.y })) {
+    neighbors.push({ x: node.x - 1, y: node.y });
   }
+
+  // Check the cell above
+  if (node.y > 1 && !isSnake({ x: node.x, y: node.y - 1 })) {
+    neighbors.push({ x: node.x, y: node.y - 1 });
+  }
+
+  // Check the cell below
+  if (node.y < gridSize && !isSnake({ x: node.x, y: node.y + 1 })) {
+    neighbors.push({ x: node.x, y: node.y + 1 });
+  }
+
+  return neighbors;
+}
+
+function isSnake(position) {
+  return snake.some(segment => segment.x === position.x && segment.y === position.y);
+}
