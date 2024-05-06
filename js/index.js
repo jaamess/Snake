@@ -12,7 +12,7 @@ let food = generateFood();
 let highScore = 0;
 let direction = 'right';
 let gameInterval;
-let gameSpeedDelay = 200;
+let gameSpeedDelay = 100;
 let gameStarted = false;
 
 // Draw game map, snake, food
