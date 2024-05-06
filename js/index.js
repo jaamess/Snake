@@ -121,17 +121,28 @@ function startGame() {
 }
 
 function aiDirection() {
-    const head = { ...snake[0] }; // Get the current head of the snake
-    if (head.x < food.x) {
-      return 'right';
-    } else if (head.x > food.x) {
-      return 'left';
-    } else if (head.y < food.y) {
-      return 'down';
-    } else if (head.y > food.y) {
-      return 'up';
+    const start = { x: snake[0].x, y: snake[0].y }; // Convert the snake's head to a node
+    const goal = { x: food.x, y: food.y }; // Convert the food to a node
+  
+    const path = aStar(start, goal); // Find the path from the start to the goal
+  
+    if (path.length > 0) {
+      const nextStep = path[0]; // The next step is the first node in the path
+  
+      // Convert the next step to a direction
+      if (nextStep.x > start.x) {
+        return 'right';
+      } else if (nextStep.x < start.x) {
+        return 'left';
+      } else if (nextStep.y > start.y) {
+        return 'down';
+      } else if (nextStep.y < start.y) {
+        return 'up';
+      }
     }
-  }
+  
+    return 'right'; // Default direction
+  }  
 
 // Keypress event listener
 function handleKeyPress(event) {
@@ -217,3 +228,35 @@ function updateHighScore() {
   }
   highScoreText.style.display = 'block';
 }
+
+
+
+function getNeighbors(node) {
+    let neighbors = [];
+  
+    // Check the cell on the right
+    if (node.x < gridSize) {
+      neighbors.push({ x: node.x + 1, y: node.y });
+    }
+  
+    // Check the cell on the left
+    if (node.x > 1) {
+      neighbors.push({ x: node.x - 1, y: node.y });
+    }
+  
+    // Check the cell above
+    if (node.y > 1) {
+      neighbors.push({ x: node.x, y: node.y - 1 });
+    }
+  
+    // Check the cell below
+    if (node.y < gridSize) {
+      neighbors.push({ x: node.x, y: node.y + 1 });
+    }
+  
+    // Filter out the neighbors that are part of the snake's body
+    neighbors = neighbors.filter(neighbor => !snake.some(segment => segment.x === neighbor.x && segment.y === neighbor.y));
+  
+    return neighbors;
+  }
+  
