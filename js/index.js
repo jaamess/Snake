@@ -61,37 +61,38 @@ function generateFood() {
 
 // Moving the snake
 function move() {
-  const head = { ...snake[0] };
-  switch (direction) {
-    case 'up':
-      head.y--;
-      break;
-    case 'down':
-      head.y++;
-      break;
-    case 'left':
-      head.x--;
-      break;
-    case 'right':
-      head.x++;
-      break;
+    direction = aiDirection(); // Use the AI function to decide the direction
+    const head = { ...snake[0] };
+    switch (direction) {
+      case 'up':
+        head.y--;
+        break;
+      case 'down':
+        head.y++;
+        break;
+      case 'left':
+        head.x--;
+        break;
+      case 'right':
+        head.x++;
+        break;
+    }
+  
+    snake.unshift(head);
+  
+    if (head.x === food.x && head.y === food.y) {
+      food = generateFood();
+      increaseSpeed();
+      clearInterval(gameInterval); // Clear past interval
+      gameInterval = setInterval(() => {
+        move();
+        checkCollision();
+        draw();
+      }, gameSpeedDelay);
+    } else {
+      snake.pop();
+    }
   }
-
-  snake.unshift(head);
-
-  if (head.x === food.x && head.y === food.y) {
-    food = generateFood();
-    increaseSpeed();
-    clearInterval(gameInterval); // Clear past interval
-    gameInterval = setInterval(() => {
-      move();
-      checkCollision();
-      draw();
-    }, gameSpeedDelay);
-  } else {
-    snake.pop();
-  }
-}
 
 // Start game
 function startGame() {
@@ -104,6 +105,19 @@ function startGame() {
     draw();
   }, gameSpeedDelay);
 }
+
+function aiDirection() {
+    const head = { ...snake[0] }; // Get the current head of the snake
+    if (head.x < food.x) {
+      return 'right';
+    } else if (head.x > food.x) {
+      return 'left';
+    } else if (head.y < food.y) {
+      return 'down';
+    } else if (head.y > food.y) {
+      return 'up';
+    }
+  }
 
 // Keypress event listener
 function handleKeyPress(event) {
