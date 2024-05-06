@@ -283,7 +283,7 @@ function getNeighbors(node) {
     if (node.y < gridSize && !isSnake({ x: node.x, y: node.y + 1 })) {
       neighbors.push({ x: node.x, y: node.y + 1, costFromStart: Infinity, heuristicCost: 0 });
     }
-    
+
     return neighbors;
 }
 
