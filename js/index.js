@@ -17,19 +17,28 @@ let gameStarted = false;
 
 // Draw game map, snake, food
 function draw() {
-  board.innerHTML = '';
-  drawSnake();
-  drawFood();
-  updateScore();
-}
+  // Use document fragment to improve performance
+  const fragment = document.createDocumentFragment();
 
-// Generate snake
-function drawSnake() {
+  // Draw snake
   snake.forEach((segment) => {
     const snakeElement = createGameElement('div', 'snake');
     setPosition(snakeElement, segment);
-    board.appendChild(snakeElement);
+    fragment.appendChild(snakeElement);
   });
+
+  // Draw food
+  if (gameStarted) {
+    const foodElement = createGameElement('div', 'food');
+    setPosition(foodElement, food);
+    fragment.appendChild(foodElement);
+  }
+
+  // Append all elements at once
+  board.innerHTML = '';
+  board.appendChild(fragment);
+
+  updateScore();
 }
 
 // Create a snake or food cube/div
@@ -43,14 +52,6 @@ function createGameElement(tag, className) {
 function setPosition(element, position) {
   element.style.gridColumn = position.x;
   element.style.gridRow = position.y;
-}
-
-function drawFood() {
-  if (gameStarted) {
-    const foodElement = createGameElement('div', 'food');
-    setPosition(foodElement, food);
-    board.appendChild(foodElement);
-  }
 }
 
 function generateFood() {
