@@ -12,7 +12,7 @@ let food = generateFood();
 let highScore = 0;
 let direction = 'right';
 let gameInterval;
-let gameSpeedDelay = 100;
+let gameSpeedDelay = 200;
 let gameStarted = false;
 
 // Draw game map, snake, food
@@ -160,7 +160,7 @@ function checkCollision() {
 
   for (let i = 1; i < snake.length; i++) {
     if (head.x === snake[i].x && head.y === snake[i].y) {
-      console.log('Ending game...')
+      console.log('Collision detected.\nEnding game...')
       resetGame();
     }
   }
