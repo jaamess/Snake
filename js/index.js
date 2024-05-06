@@ -84,19 +84,19 @@ function move() {
   switch (direction) {
     case 'up':
       head.y--;
-      console.log('Move up')
+      // console.log('Move up')
       break;
     case 'down':
       head.y++;
-      console.log('Move down')
+      // console.log('Move down')
       break;
     case 'left':
       head.x--;
-      console.log('Move left')
+      // console.log('Move left')
       break;
     case 'right':
       head.x++;
-      console.log('Move right')
+      // console.log('Move right')
       break;
   }
 
