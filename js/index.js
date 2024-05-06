@@ -268,4 +268,4 @@ function getNeighbors(node) {
   
   function isSnake(position) {
     return snake.some(segment => segment.x === position.x && segment.y === position.y);
-  }  
+  }
