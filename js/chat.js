@@ -20,7 +20,7 @@ function displayMessage(message, sender) {
 async function getAIResponse(message) {
     try {
         console.log(`Sending message to Worker: ${message}`);
-        const response = await fetch('https://chat-api.thi.digital/', {
+        const response = await fetch('https://ai-worker.thiagozevedo3.workers.dev/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
