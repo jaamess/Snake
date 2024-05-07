@@ -39,7 +39,7 @@ async function getAIResponse(message) {
             throw new Error('Network response was not ok');
         }
 
-        console.log(await response)
+        console.log(await response);
 
         const responseData = await response.json();
         const aiResponse = responseData[0].response.response;
