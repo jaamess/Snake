@@ -62,7 +62,7 @@ if (userInput) {
             event.preventDefault();
             sendMessage();
         }
-    })
+    });
 } else {
-    return null;
+    console.error("userInput element doesn't exist.");
 }
