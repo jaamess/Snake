@@ -56,9 +56,13 @@ async function getAIResponse(message) {
 }
 
 // Event listener to call sendMessage() when Enter key is pressed
-userInput.addEventListener('keyup', function (event) {
-    if (event.keyCode === 13) { // Enter key
-        event.preventDefault();
-        sendMessage();
-    }
-});
+if (userInput) {
+    userInput.addEventListener('keyup', function (event) {
+        if (event.keyCode === 13) { // Enter key
+            event.preventDefault();
+            sendMessage();
+        }
+    })
+} else {
+    return null;
+}
