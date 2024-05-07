@@ -3,18 +3,20 @@ const userInput = document.getElementById('user-input');
 
 function sendMessage() {
     const message = userInput.value;
-    displayMessage(message, 'user');
-    userInput.value = '';
-
-    // Send message to AI and get response
-    getAIResponse(message);
+    displayMessage(message, 'user').then(() => {
+        // Send message to AI and get response
+        getAIResponse(message);
+    });
 }
 
 function displayMessage(message, sender) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', sender);
-    messageElement.innerText = message;
-    chatMessages.appendChild(messageElement);
+    return new Promise(resolve => {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        messageElement.innerText = message;
+        chatMessages.appendChild(messageElement);
+        resolve();
+    });
 }
 
 async function getAIResponse(message) {
