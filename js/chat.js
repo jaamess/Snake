@@ -18,31 +18,35 @@ function displayMessage(message, sender) {
 }
 
 async function getAIResponse(message) {
-  try {
-    const response = await fetch('https://chat-api.thi.digital/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: 'user',
-            content: message
-          }
-        ]
-      })
-    });
-
-    const responseData = await response.json();
-    const aiResponse = responseData[0].response.response;
-
-    displayMessage(aiResponse, 'ai');
-  } catch (error) {
-    console.error('Error fetching AI response:', error);
-    displayMessage('Oops! Something went wrong. Please try again later.', 'ai');
-  }
-}
+    try {
+      const response = await fetch('https://chat-api.thi.digital/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: message
+            }
+          ]
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const responseData = await response.json();
+      const aiResponse = responseData[0].response.response;
+  
+      displayMessage(aiResponse, 'ai');
+    } catch (error) {
+      console.error('Error fetching AI response:', error);
+      displayMessage('Oops! Something went wrong. Please try again later.', 'ai');
+    }
+  }  
 
 // Event listener to call sendMessage() when Enter key is pressed
 userInput.addEventListener('keyup', function(event) {
