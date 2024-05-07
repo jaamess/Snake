@@ -40,6 +40,8 @@ async function getAIResponse(message) {
   
       const responseData = await response.json();
       const aiResponse = responseData[0].response.response;
+      console.log(responseData)
+      console.log(aiResponse)
   
       displayMessage(aiResponse, 'ai');
     } catch (error) {
