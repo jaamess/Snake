@@ -6,7 +6,7 @@ const score = document.getElementById('score');
 const highScoreText = document.getElementById('highScore');
 
 // Game variables
-const gridSize = 25;
+const gridSize = 30;
 let snake = [{ x: 10, y: 10 }];
 let food = generateFood();
 let highScore = 0;
