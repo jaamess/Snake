@@ -15,8 +15,8 @@ body,
 #game-board {
   border-radius: 100px;
   display: grid;
-  grid-template-columns: repeat(40, 15px); /* Updated to 40 columns */
-  grid-template-rows: repeat(40, 15px); /* Updated to 40 rows */
+  grid-template-columns: repeat(25, 15px); /* Updated to 25 columns */
+  grid-template-rows: repeat(25, 15px); /* Updated to 25 rows */
   margin: 5px;
 }
 
