@@ -4,8 +4,8 @@ const logo = document.getElementById('logo');
 const score = document.getElementById('score');
 const highScoreText = document.getElementById('highScore');
 let gameMode = '';
-const gridSize = 17;
-let snake = [{ x: 10, y: 10 }];
+let gridSize;
+let snake;
 let food = null;
 let highScore = 0;
 let direction = 'right';
@@ -26,6 +26,7 @@ function draw() {
     if (gameMode === 'custom') {
       foodElement.style.backgroundImage = "url('assets/dogui.png')";
       foodElement.style.backgroundSize = 'cover';
+      foodElement.style.border = 'none';
     }
     fragment.appendChild(foodElement);
   }
@@ -143,12 +144,22 @@ function startGame() {
   instructionText.style.display = 'none';
   logo.style.display = 'none';
   document.getElementById('game-mode-selection').style.display = 'none';
-  if (gameMode === 'classic') {
+
+  if (gameMode === 'custom') {
+    gridSize = 20;
+    board.style.gridTemplateColumns = 'repeat(20, 35px)';
+    board.style.gridTemplateRows = 'repeat(20, 35px)';
+    snake = [{ x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2) }];
+    food = null;
+    board.addEventListener('click', placeFood);
+  } else {
+    gridSize = 25;
+    board.style.gridTemplateColumns = 'repeat(25, 20px)';
+    board.style.gridTemplateRows = 'repeat(25, 20px)';
+    snake = [{ x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2) }];
     food = generateFood();
   }
-  if (gameMode === 'custom') {
-    board.addEventListener('click', placeFood);
-  }
+
   gameInterval = setInterval(() => {
     move();
     checkCollision();
@@ -158,8 +169,10 @@ function startGame() {
 
 function placeFood(event) {
   const rect = board.getBoundingClientRect();
-  const x = Math.floor(((event.clientX - rect.left) / rect.width) * gridSize) + 1;
-  const y = Math.floor(((event.clientY - rect.top) / rect.height) * gridSize) + 1;
+  const cellWidth = rect.width / gridSize;
+  const cellHeight = rect.height / gridSize;
+  const x = Math.floor((event.clientX - rect.left) / cellWidth) + 1;
+  const y = Math.floor((event.clientY - rect.top) / cellHeight) + 1;
   if (x < 1 || x > gridSize || y < 1 || y > gridSize) return;
   if (!isSnake({ x, y })) {
     food = { x, y };
@@ -194,8 +207,6 @@ function checkCollision() {
 function resetGame() {
   updateHighScore();
   stopGame();
-  snake = [{ x: 10, y: 10 }];
-  food = null;
   direction = 'right';
   gameSpeedDelay = 200;
   updateScore();

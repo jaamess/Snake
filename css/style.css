@@ -5,19 +5,17 @@ body {
   height: 100vh;
   margin: 0;
   font-family: 'VT323', monospace;
-  position: relative; /* Add position relative for absolute positioning */
+  position: relative;
 }
 
-body,
-.snake {
-  background-color: #414141;
+body {
+  background-color: #c4cfa3;
 }
 
 #game-board {
   border-radius: 100px;
   display: grid;
-  grid-template-columns: repeat(30, 18px);
-  grid-template-rows: repeat(30, 18px);
+  /* grid-template-columns and rows are set dynamically via JavaScript */
   margin: 5px;
 }
 
@@ -42,7 +40,7 @@ body,
 #instruction-text {
   position: absolute;
   top: 60%;
-  color: #333;
+  color: #525252;
   width: 300px;
   text-align: center;
   text-transform: capitalize;
@@ -77,6 +75,7 @@ body,
 }
 
 .snake {
+  background-color: #414141; /* Added contrasting background color */
   border: #5a5a5a 1px dotted;
 }
 
@@ -105,33 +104,27 @@ footer a {
   font-weight: bold;
 }
 
-/* Chatbox styles */
-
-#chatbox {
+#game-mode-selection {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  top: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#chat-messages {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.message {
-  margin-bottom: 10px;
-  padding: 5px 10px;
+#game-mode-selection button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  background-color: #414141;
+  color: #abb78a;
+  border: 2px solid #abb78a;
   border-radius: 5px;
+  font-family: 'VT323', monospace;
 }
 
-.user {
-  background-color: #f0f0f0;
-}
-
-.ai {
-  background-color: #e0e0e0;
+#game-mode-selection button:hover {
+  background-color: #abb78a;
+  color: #414141;
 }
