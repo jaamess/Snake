@@ -17,8 +17,14 @@
       window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
+    <script src="assets/strings.js"></script>
+    <script src="js/loc.js"></script>
   </head>
   <body>
+    <div id="language-selector" class="dropdown">
+      <button id="language-btn">Language</button>
+      <div id="dropdown-content" class="dropdown-content"></div>
+    </div>    
     <div>
       <div class="scores">
         <h1 id="score">000</h1>
