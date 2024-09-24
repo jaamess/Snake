@@ -35,8 +35,17 @@
     <h1 id="instruction-text">Select the game mode</h1>
     <img id="logo" src="assets/snake-game.png" alt="snake-logo" />
     <div id="game-mode-selection">
-      <button id="classic-mode-btn">Classic Mode</button>
-      <button id="custom-mode-btn">Dogui Mode</button>
+      <button id="classic-mode-btn" class="mode-btn" data-tooltip="AI plays the classic snake game.">Classic Mode</button>
+      <button id="custom-mode-btn" class="mode-btn" data-tooltip="By Dogui">Dogui Mode</button>
+      <button id="test-mode-btn" class="mode-btn" data-tooltip="Play the snake game yourself!">Pro</button>
+    </div>
+    <div id="difficulty-selection" style="display: none;">
+      <h2>Select Difficulty</h2>
+      <button class="difficulty-btn" data-difficulty="easy" data-tooltip="Slow speed, suitable for beginners.">Easy</button>
+      <button class="difficulty-btn" data-difficulty="medium" data-tooltip="Moderate speed for average players.">Medium</button>
+      <button class="difficulty-btn" data-difficulty="hard" data-tooltip="Fast speed for experienced players.">Hard</button>
+      <button class="difficulty-btn" data-difficulty="insane" data-tooltip="Very fast speed, challenging.">Insane</button>
+      <button class="difficulty-btn" data-difficulty="impossible" data-tooltip="Extreme speed, can you handle it?">Impossible</button>
     </div>
     <footer>Source code available on <a href="https://github.com/jaamess/Snake" target="_blank">Github</a></footer>
   </body>

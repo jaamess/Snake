@@ -128,3 +128,47 @@ footer a {
   background-color: #abb78a;
   color: #414141;
 }
+
+.mode-btn, .difficulty-btn {
+  position: relative;
+}
+
+.mode-btn:hover::after, .difficulty-btn:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #abb78a;
+  color: #414141;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 18px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+#difficulty-selection {
+  position: absolute;
+  top: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#difficulty-selection button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  background-color: #414141;
+  color: #abb78a;
+  border: 2px solid #abb78a;
+  border-radius: 5px;
+  font-family: 'VT323', monospace;
+}
+
+#difficulty-selection button:hover {
+  background-color: #abb78a;
+  color: #414141;
+}

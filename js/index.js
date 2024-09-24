@@ -12,6 +12,8 @@ let direction = 'right';
 let gameInterval;
 let gameSpeedDelay = 100;
 let gameStarted = false;
+let playerControlled = false;
+let keyPressed = false;
 
 function draw() {
   const fragment = document.createDocumentFragment();
@@ -105,7 +107,9 @@ function isSafeDirection(dir) {
 }
 
 function move() {
-  direction = aiDirection();
+  if (!playerControlled) {
+    direction = aiDirection();
+  }
   const head = { ...snake[0] };
   switch (direction) {
     case 'up':
@@ -122,6 +126,7 @@ function move() {
       break;
   }
   snake.unshift(head);
+
   if (food && head.x === food.x && head.y === food.y) {
     food = null;
     increaseSpeed();
@@ -130,8 +135,9 @@ function move() {
       move();
       checkCollision();
       draw();
+      keyPressed = false;
     }, gameSpeedDelay);
-    if (gameMode === 'classic') {
+    if (gameMode !== 'custom') {
       food = generateFood();
     }
   } else {
@@ -144,6 +150,7 @@ function startGame() {
   instructionText.style.display = 'none';
   logo.style.display = 'none';
   document.getElementById('game-mode-selection').style.display = 'none';
+  document.getElementById('difficulty-selection').style.display = 'none';
 
   if (gameMode === 'custom') {
     gridSize = 20;
@@ -152,6 +159,13 @@ function startGame() {
     snake = [{ x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2) }];
     food = null;
     board.addEventListener('click', placeFood);
+  } else if (gameMode === 'test') {
+    playerControlled = true;
+    board.style.gridTemplateColumns = `repeat(${gridSize}, ${650 / gridSize}px)`;
+    board.style.gridTemplateRows = `repeat(${gridSize}, ${650 / gridSize}px)`;
+    snake = [{ x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2) }];
+    food = generateFood();
+    document.addEventListener('keydown', changeDirection);
   } else {
     gridSize = 25;
     board.style.gridTemplateColumns = 'repeat(25, 20px)';
@@ -164,6 +178,7 @@ function startGame() {
     move();
     checkCollision();
     draw();
+    keyPressed = false;
   }, gameSpeedDelay);
 }
 
@@ -211,6 +226,8 @@ function resetGame() {
   gameSpeedDelay = 200;
   updateScore();
   gameMode = '';
+  playerControlled = false;
+  document.removeEventListener('keydown', changeDirection);
 }
 
 function updateScore() {
@@ -318,3 +335,68 @@ document.getElementById('custom-mode-btn').addEventListener('click', () => {
   gameMode = 'custom';
   startGame();
 });
+
+document.getElementById('test-mode-btn').addEventListener('click', () => {
+  gameMode = 'test';
+  document.getElementById('game-mode-selection').style.display = 'none';
+  document.getElementById('difficulty-selection').style.display = 'block';
+});
+
+document.querySelectorAll('.difficulty-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const difficulty = button.getAttribute('data-difficulty');
+    setDifficulty(difficulty);
+    startGame();
+  });
+});
+
+function setDifficulty(difficulty) {
+  switch (difficulty) {
+    case 'easy':
+      gameSpeedDelay = 200;
+      gridSize = 25;
+      break;
+    case 'medium':
+      gameSpeedDelay = 150;
+      gridSize = 25;
+      break;
+    case 'hard':
+      gameSpeedDelay = 100;
+      gridSize = 30;
+      break;1
+    case 'insane':
+      gameSpeedDelay = 75;
+      gridSize = 40;
+      break;
+    case 'impossible':
+      gameSpeedDelay = 50;
+      gridSize = 50;
+      break;
+    default:
+      gameSpeedDelay = 150;
+  }
+}
+
+function changeDirection(event) {
+  if (keyPressed) return;
+  keyPressed = true;
+  const key = event.code;
+  switch (key) {
+    case 'ArrowUp':
+    case 'KeyW':
+      if (direction !== 'down') direction = 'up';
+      break;
+    case 'ArrowDown':
+    case 'KeyS':
+      if (direction !== 'up') direction = 'down';
+      break;
+    case 'ArrowLeft':
+    case 'KeyA':
+      if (direction !== 'right') direction = 'left';
+      break;
+    case 'ArrowRight':
+    case 'KeyD':
+      if (direction !== 'left') direction = 'right';
+      break;
+  }
+}
